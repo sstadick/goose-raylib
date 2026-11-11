@@ -1,0 +1,4 @@
+c_headers = ["include/raylib.h"];
+cmake_target = "goose_raylib";
+main_thread_only = true;
+exclude = ["tests", "examples", "vendor", "tools", ".amp", ".ci", "build"];

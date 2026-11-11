@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.25)
+project(goose_raylib LANGUAGES C)
+
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(WITH_PIC ON CACHE BOOL "" FORCE)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+add_subdirectory(vendor/raylib)
+add_library(goose_raylib STATIC src/native.c)
+target_link_libraries(goose_raylib PUBLIC raylib)

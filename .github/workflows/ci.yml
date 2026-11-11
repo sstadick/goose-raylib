@@ -1,0 +1,54 @@
+name: CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      CC: clang
+      CXX: clang++
+      GOOSE_CC: clang
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.x'
+      - name: Install desktop build and test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build libx11-dev libxrandr-dev \
+            libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev xvfb xauth
+      - uses: actions/checkout@v7
+        with:
+          repository: aardappel/goose
+          ref: d5ae5bbda990923fa4129f969c7f853c20d4d1e6
+          path: .ci/goose
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          repository: sstadick/goose-doc
+          ref: bb399143866c0c42268f23c8dfda7a447173f93d
+          path: .ci/goose-doc
+          persist-credentials: false
+      - name: Build Goose
+        run: |
+          cmake -S .ci/goose -B .ci/goose/build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release -DGOOSE_BUILTIN_LIBS= \
+            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+          cmake --build .ci/goose/build --parallel 2
+          echo "GOOSE=$PWD/.ci/goose/build/goose" >> "$GITHUB_ENV"
+          echo "GOOSE_DOC=$PWD/.ci/goose-doc/main.goose" >> "$GITHUB_ENV"
+      - name: Check generated bindings and API reference
+        run: |
+          python3 tools/generate.py --check
+          scripts/docs.sh --check
+      - name: Test TinyCC and Clang, including actual rendering
+        run: |
+          scripts/doctest.sh
+          scripts/doctest.sh --cc clang
+          xvfb-run -a python3 tests/run.py --graphics
