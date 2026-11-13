@@ -13,7 +13,8 @@ does not currently include global constants.
 ## Run
 
 Requires a current Goose compiler with `c_headers`, CMake 3.25+, and Clang.
-Developed against Goose `d5ae5bbda990923fa4129f969c7f853c20d4d1e6`.
+Tested with Goose `855f1037a5ceee837ef270382ac8d26df47a7139`
+(`goose v2026.4-24-g855f1037`); CI pins this revision.
 Raylib is vendored: no system raylib installation or build-time download is needed.
 Even `goose run` needs a native compiler for raylib and the TinyCC adapter library.
 
