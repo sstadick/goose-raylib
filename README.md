@@ -13,8 +13,8 @@ does not currently include global constants.
 ## Run
 
 Requires a current Goose compiler with `c_headers`, CMake 3.25+, and Clang.
-Tested with Goose `855f1037a5ceee837ef270382ac8d26df47a7139`
-(`goose v2026.4-24-g855f1037`); CI pins this revision.
+Tested with Goose `4602c98660676b2cb94bc9b06fec8c65b37fce92`
+(`goose v2026.4-26-g4602c986`, runtime `d521138194f1`); CI pins this revision.
 Raylib is vendored: no system raylib installation or build-time download is needed.
 Even `goose run` needs a native compiler for raylib and the TinyCC adapter library.
 
@@ -129,6 +129,14 @@ PNG round-trips, independently checked WAV samples, string boundaries, and
 literal formatting. Rendering tests assert actual pixels for 2D shapes,
 textures and a 3D model, plus camera transforms and font metrics. They run via
 TinyCC and native Clang; CPU tests also run debug and optimized variants.
+
+Compatibility probes also exercised these wrappers from `checkfree` callers,
+including actual rendering, and checked transitive bounds-check diagnostics.
+This compiler judges the Goose code executed by a `checkfree` caller, so callees
+need not carry the annotation. Callers must still supply provable bounds for
+slice/index operations; ordinary checked callers retain runtime bounds checks.
+`checkfree` does not validate native C addresses or relax the ownership and
+raw-pointer preconditions above.
 
 To capture the example, run `goose run examples/window.goose -- --frames 3 window.png`.
 
